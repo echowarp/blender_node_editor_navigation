@@ -15,7 +15,7 @@ It's like the minimap on a HUD in a game, or the navigator on an image editor.
 
 Since this is not an addon, the navigator will only be shown until this blender instance is closed.
 To use it again when reloading a save, just hit the run button.
-For now, this is intentional until the stability of the script is better tested.
+For now, this is intentional until the stability of the script is better tested. If there is a crash or bug, this script will not be automatically loaded.
 
 # Usage
 Click and drag on the navigator to move the viewport.
@@ -29,7 +29,11 @@ Only changes in selection or moving using the minimap causes redraw.
 # Feature ideas
 * If possible, changing minimap node colors to match the colors at the top of the nodes in the view, and obey custom colors.
 
-* Make minimap resizable by user
+* Make minimap resizable by user.
+
+* Once proven stable, convert to an addon for permanent installation.
+
+* Obey user color scheme
 
 # Motivation
 I created this because I found the gizmo on the 3D view extremely helpful when using a graphics tablet, like a Wacom Intuos, but then found it extremely frustrating to navigate the node editor. The primary goal was just to add the scrolling by mouse drag that is possible in the 3D viewer.
