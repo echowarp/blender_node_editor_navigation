@@ -5,11 +5,13 @@ It's like the minimap on a HUD in a game, or the navigator on an image editor.
 
 ![Screenshot of new minimap navigation](https://github.com/echowarp/blender_node_editor_navigation/raw/master/doc/img/NavigationPreviewShader.png "Screenshot of new minimap navigation")
 
-# Installation:
+# Installation: (Temporary)
 1. Go to the scripting workspace
 2. Add a "new text" at the top
 3. Paste in "[gizmo_node_nav.py](https://github.com/echowarp/blender_node_editor_navigation/blob/master/gizmo_node_nav.py)" file contents into the text, or [download the file](https://raw.githubusercontent.com/echowarp/blender_node_editor_navigation/master/gizmo_node_nav.py) and select it with the file browser.
 4. Hit "Run Script" at the top
+
+![Screenshot showing the described installation steps](https://github.com/echowarp/blender_node_editor_navigation/raw/master/doc/img/InstallationSteps.png "Temporary Installation Steps")
 
 Since this is not an addon, the navigator will only be shown until this blender instance is closed.
 To use it again when reloading a save, just hit the run button.
