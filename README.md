@@ -1,4 +1,4 @@
-# blender_node_editor_navigation
+# Navigation for the Node Editor in Blender
 A Blender script that adds a gizmo to the top right of node editors that shows an overview of all of the nodes, and where the view is at.
 
 
