@@ -103,10 +103,10 @@ class gizmoMousePad(Gizmo):
         dx = event.mouse_x - event.mouse_prev_x
         dy = event.mouse_y - event.mouse_prev_y
 
-        # Tweak = 'PRECISE' or 'SNAP'
-        if tweak == "PRECISE":
-            dx = dx / 2
-            dy = dy / 2
+        # Tweak = {'PRECISE'} or {'SNAP'}
+        if tweak == {"PRECISE"}:
+            dx = dx / 10
+            dy = dy / 10
 
         bpy.ops.view2d.pan(deltax=dx, deltay=dy)
 
@@ -197,8 +197,8 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         x, y, w, h = self.convert_view_to_minimap_coords(cx, cy, w/2, h/2)
 
         # clamp size of view
-        w = min(self.minimap_width,  w)
-        h = min(self.minimap_height, h)
+        # w = min(self.minimap_width,  w)
+        # h = min(self.minimap_height, h)
 
         original_w = w
         original_h = h
@@ -234,8 +234,8 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         y = min(y, self.minimap_maxy - h / 2)
 
         # position
-        self.minimap_view.matrix_basis[0][3] = x # - original_w/2 # weird offset from scaling, probably a bug somewhere
-        self.minimap_view.matrix_basis[1][3] = y # - original_h/4
+        self.minimap_view.matrix_basis[0][3] = x
+        self.minimap_view.matrix_basis[1][3] = y
 
         # scale
         self.minimap_view.matrix_basis[0][1] = w / 2
@@ -256,8 +256,8 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
             x, y, w, h = self.convert_view_to_minimap_coords(cx, cy, cw, ch)
 
             # position
-            n_gizmo.matrix_basis[0][3] = x
-            n_gizmo.matrix_basis[1][3] = y
+            n_gizmo.matrix_basis[0][3] = x + w /2
+            n_gizmo.matrix_basis[1][3] = y - h /2
 
             # scale
             n_gizmo.matrix_basis[0][1] = w / 2
@@ -290,18 +290,18 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         maxy = -math.inf;
 
         for n in context.space_data.node_tree.nodes:
-            w = n.dimensions[0]
-            h = n.dimensions[1]
+            w = n.dimensions[0] / 2
+            h = n.dimensions[1] / 2
 
-            minx = min( minx, n.location[0] - w )
-            maxx = max( maxx, n.location[0] + w )
-            miny = min( miny, n.location[1] - h )
-            maxy = max( maxy, n.location[1] + h )
+            minx = min( minx, n.location[0] )
+            maxx = max( maxx, n.location[0] + w)
+            miny = min( miny, n.location[1] - h)
+            maxy = max( maxy, n.location[1] )
 
-        self.full_view_minx = minx
-        self.full_view_miny = miny
-        self.full_view_maxx = maxx
-        self.full_view_maxy = maxy
+        self.full_view_minx = minx - 0
+        self.full_view_miny = miny - 0
+        self.full_view_maxx = maxx + 0
+        self.full_view_maxy = maxy + 0
         self.full_view_width = maxx - minx
         self.full_view_height = maxy - miny
 
