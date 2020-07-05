@@ -35,7 +35,6 @@ class gizmoSimpleBox(Gizmo):
 
     def setup(self):
         self.use_draw_modal = True
-
         self.use_grab_cursor = False
         self.use_event_handle_all = False
 
@@ -46,12 +45,10 @@ class gizmoMousePad(Gizmo):
     bl_idname = "NODE_EDITOR_GT_mousepad"
 
     def draw(self, context):
-        # print("DRAW")
         self.draw_preset_box( self.matrix_basis )
 
     def draw_select(self, context, select_id):
-        print("SELECT")
-        self.draw_preset_box( self.matrix_basis)
+        self.draw_preset_box( self.matrix_basis )
 
     def test_inside(self, x, y, debug=False):
         cx = self.matrix_basis[0][3]
@@ -76,23 +73,11 @@ class gizmoMousePad(Gizmo):
         x = location[0]
         y = location[1]
 
-        # print("Test Select")
         return self.test_inside(x,y)
 
     def invoke(self, context, event):
-        # print("INVOKE mouse: {}, {}".format(event.mouse_region_x, event.mouse_y) )
-        # print(dir(event))
-
-        # print( bpy.context.area.type )
-        # bpy.context.area.type = "NODE_EDITOR"
-#        print( bpy.context.area.type )
-#        print( bpy.context.area.spaces.active.type)
-#        bpy.ops.view2d.scroller_activate()
-
         x = event.mouse_region_x
         y = event.mouse_region_y
-
-        # print("Event type: {}   Value: {}".format(event.type, event.value) )
 
         inside = self.test_inside(x, y)
 
@@ -102,88 +87,39 @@ class gizmoMousePad(Gizmo):
             return {'PASS_THROUGH'}
 
     def setup(self):
-        print("gizmo setup")
-
         self.use_grab_cursor = True
-        self.use_event_handle_all = True
+        self.use_event_handle_all = False
 
 
     def exit(self, context, cancel):
         context.area.header_text_set(None)
+        # TODO:
         # if cancel:
 
     def refresh(self, context):
         pass
 
     def modal(self, context, event, tweak):
-        # Tweak = 'PRECISE' or 'SNAP'
-
-        # print("MODAL")
-        # print( dir(event) )
-        # print("Type: {} | Value: {}".format( event.type, event.value ) )
-
-        # if event.value == 'PRESS':
-            # print("Finished")
-            # return {'FINISHED'}
-
-
         dx = event.mouse_x - event.mouse_prev_x
         dy = event.mouse_y - event.mouse_prev_y
 
+        # Tweak = 'PRECISE' or 'SNAP'
+        if tweak == "PRECISE":
+            dx = dx / 2
+            dy = dy / 2
+
         bpy.ops.view2d.pan(deltax=dx, deltay=dy)
 
+        # update the minimap graphics
         self.group.adjust_minimap_view(context)
 
-        # scrolls with mouse
-        # bpy.ops.view2d.smoothview(xmin=0, xmax=0, ymin=0, ymax=0, wait_for_input=True)
-
-        region = context.region
-
+        # Show node coordinates in the title area
         # find the center of the region in view coords
+        region = context.region
         x, y = context.region.view2d.region_to_view( region.width/2 , region.height/2)
-
-        # x, y = context.region.view2d.region_to_view(event.mouse_region_x, event.mouse_region_y)
         context.area.header_text_set( "Panning to: {:.0f}, {:.0f}".format(x,y) )
 
         return {'RUNNING_MODAL'}
-
-
-
-
-#class nodeMiniMapRelay():
-#    def __init__(self, gizmoGroup, node):
-#        self.group = gizmoGroup
-#
-#        self.group.nodes[ n.name ] = self
-#
-#        self.gizmo = self.group.gizmos.new( gizmoMousePad.bl_idname )
-#
-#        self.gizmo.matrix_basis[0][0] = 0
-#        self.gizmo.matrix_basis[1][1] = 0
-#        self.gizmo.draw_style = 'BOX'
-#        self.gizmo.color = .7, .7, .7
-#        self.gizmo.alpha = 0.5
-#        self.gizmo.color_highlight = 1.0, 0.5, 1.0
-#        self.gizmo.alpha_highlight = 0.5
-#        self.gizmo.scale_basis = 1
-#
-#
-#        self.refresh(node)
-#
-#    def refresh(self, node):
-#
-#        self.group.width
-#        self.group.height
-#
-#        # position
-#        self.gizmo.matrix_basis[0][3] = region.width - 100
-#        self.gizmo.matrix_basis[1][3] = region.height - 100
-#
-#        # scale
-#        self.gizmo.matrix_basis[0][1] = width / 2
-#        self.gizmo.matrix_basis[1][0] = height / 2
-
-
 
 
 
@@ -198,35 +134,16 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
     bl_region_type = 'WINDOW'
     bl_options = {'PERSISTENT', "SELECT", "SHOW_MODAL_ALL"}
 
-    @staticmethod
-    def printOb( ob ):
-
-        print("Object:")
-        try:
-            print(ob.name)
-        except:
-            print("object does not have a name")
-
-        print( dir ( ob ) )
-
     @classmethod
     def poll(cls, context):
-        #print("Poll")
-        #print(context.object)
-
-        # print("poll")
-
-        # ob = context.object
-        # return (ob and ob.type == 'LIGHT')
-
-        return len(context.space_data.node_tree.nodes)
+        node_tree = context.space_data.node_tree
+        return node_tree and len(node_tree.nodes)
 
 
     def adjust_minimap_map(self, context):
+        # minimap is fixed width, but changes height based on canvas size
         self.minimap_width  = 200
         self.minimap_height = 200 / self.full_view_aspect_ratio
-
-        print("Minimap size: {}, {}   Full View Size {}, {}  - {}".format( self.minimap_width, self.minimap_height, self.full_view_width, self.full_view_height, self.full_view_aspect_ratio) )
 
         region = context.region
 
@@ -238,13 +155,11 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         self.minimap.matrix_basis[0][1] = self.minimap_width  / 2
         self.minimap.matrix_basis[1][0] = self.minimap_height / 2
 
+        # precalculate boundaries for use by minimap_view
         self.minimap_minx = self.minimap.matrix_basis[0][3] - self.minimap_width /2
         self.minimap_miny = self.minimap.matrix_basis[1][3] - self.minimap_height/2
         self.minimap_maxx = self.minimap.matrix_basis[0][3] + self.minimap_width /2
         self.minimap_maxy = self.minimap.matrix_basis[1][3] + self.minimap_height/2
-
-
-
 
 
     def convert_view_to_minimap_coords(self, cx, cy, w, h):
@@ -254,11 +169,9 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         x = self.minimap_minx + dx
         y = self.minimap_miny + dy
 
-        # print("w {}   fvw   {}    mmw  {}".format(w, self.full_view_width, self.minimap_width))
-
         reduction_raito = self.minimap_width / self.full_view_width
         nw = w * reduction_raito
-        nh = h * reduction_raito  # / self.full_view_height  * self.minimap_height
+        nh = h * reduction_raito
 
         return x, y, nw, nh
 
@@ -280,13 +193,8 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         cx = cx / 2
         cy = cy / 2
 
-        print("Minimap region position: {}, {}    Size: {}, {}".format(cx,cy,w,h))
-
         # weird scaling for width and height for minimap, probably a bug somewhere
         x, y, w, h = self.convert_view_to_minimap_coords(cx, cy, w/2, h/2)
-
-        print("Minimap mini position: {}, {}    Size: {}, {}".format(x,y,w,h))
-
 
         # clamp size of view
         w = min(self.minimap_width,  w)
@@ -295,11 +203,13 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         original_w = w
         original_h = h
 
+        #find distance of view from each edge of the minimap
         from_minx = (x-w/2) - self.minimap_minx
         from_miny = (y-h/2) - self.minimap_miny
         from_maxx = self.minimap_maxx - (x+w/2)
         from_maxy = self.minimap_maxy - (y+h/2)
 
+        # clamp the view to stay inside the minimap
         if from_minx < 0:
             w += from_minx
             x += from_minx
@@ -316,15 +226,12 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
             h += from_maxy
             y -= from_maxy
 
-
         w = max(w, 2)
         h = max(h, 2)
         x = max(x, self.minimap_minx + w / 2)
         x = min(x, self.minimap_maxx - w / 2)
         y = max(y, self.minimap_miny + h / 2)
         y = min(y, self.minimap_maxy - h / 2)
-
-
 
         # position
         self.minimap_view.matrix_basis[0][3] = x # - original_w/2 # weird offset from scaling, probably a bug somewhere
@@ -340,13 +247,12 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
             cx = n_context.location[0]
             cy = n_context.location[1]
 
-            # cw = n_context.width
-            # ch = n_context.height * 3
-            cw = n_context.dimensions[0] / 2 # don't understand why these need to be scaled down twice?
+            # BUG? Again, no idea why this weird scaling is necessary
+            # don't understand why these need to be scaled down twice?
+            cw = n_context.dimensions[0] / 2
             ch = n_context.dimensions[1] / 2
 
-            # print(dir(n_context))
-            # print("Node size: {}, {}".format(cw, ch) )
+            # Convert coordinate systems
             x, y, w, h = self.convert_view_to_minimap_coords(cx, cy, cw, ch)
 
             # position
@@ -357,6 +263,7 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
             n_gizmo.matrix_basis[0][1] = w / 2
             n_gizmo.matrix_basis[1][0] = h / 2
 
+            # highlight if node is selected
             if n_context.select:
                 n_gizmo.color = .8, .8, .8
             else:
@@ -364,27 +271,25 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
 
 
     def scan_nodes(self, context):
-
+        # if a node is added or removed, clear self.gizmos
+        # z-index is only determined by order added into gizmos list
+        # no way to re-order the list, so just start over
+        #
+        # This is the only way to ensure that nodes stay on top
         if len(context.space_data.node_tree.nodes) != len(self.nodes):
-            print("Node added or removed, setup again to enforce z-index")
             self.setup(context)
 
+        # can't show nodes on screen if there are none...
         if not len(context.space_data.node_tree.nodes):
             return
 
+        # search for the furthest nodes in each direction
         minx =  math.inf;
         miny =  math.inf;
         maxx = -math.inf;
         maxy = -math.inf;
 
         for n in context.space_data.node_tree.nodes:
-            # print( dir(n) )
-            # print( "Node location: {}, {}".format(n.location[0], n.location[1]) )
-
-            #print("Node dimensions: {}, {}".format(n.dimensions[0], n.dimensions[1]) )
-
-            # w = n.width     # weird scaling. node height is in different units than width
-            # h = n.height*5  # weird scaling. node height is in different units than width
             w = n.dimensions[0]
             h = n.dimensions[1]
 
@@ -399,9 +304,6 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
         self.full_view_maxy = maxy
         self.full_view_width = maxx - minx
         self.full_view_height = maxy - miny
-
-
-        print("Found bounds: minx: {}  miny: {}  maxx: {}  maxy: {}".format( minx, miny, maxx, maxy ))
 
         try:
             self.full_view_aspect_ratio = self.full_view_width / self.full_view_height
@@ -419,66 +321,8 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
 
 
 
-
-
-
-
     def setup(self, context):
-
-
-
-        print("Setup")
-        print("Context")
-        print( dir(context) )
-
-        print("Nodes:")
-        print( dir(context.selected_nodes) )
-        print( dir(context.active_node) )
-        nx = context.active_node.location[0]
-        ny = context.active_node.location[1]
-        print( "Node Pos: {}, {}".format(nx, ny))
-
-        print("Workspace")
-        print( dir(context.workspace) )
-
-        window = context.window
-        print("Window: X: {}, Y:{} | W: {}, H:{}".format(window.x, window.y, window.width, window.height) )
-        print( dir(context.window) )
-
-        area = context.area
-        print("Area  X: {}, Y: {} | W: {} H: {}".format(area.x, area.y, area.width, area.height))
-        print( dir(context.area) )
-        print( dir(context.area.regions) )
-        print("Area Spaces")
-        print( dir(context.area.spaces) )
-        print( dir(context.area.spaces.active) )
-        print( dir(context.area.spaces.active.node_tree) )
-
-
-
-
-        print("Screen")
-        print( dir( context.screen) )
-
-        print("Space data")
-        print( dir( context.space_data) )
-        print( dir( context.space_data.show_region_ui) )
-
-        print("\n Node Tree")
-        print( dir( context.space_data.node_tree ) )
-        print( dir( context.space_data.node_tree.nodes ) )
-
-
-
-        print("World")
-        print( dir( context.world) )
-
-        region = context.region
-        print("Region: X: {}, Y:{} | W: {}, H:{}".format(region.x, region.y, region.width, region.height))
-        print( dir( context.region) )
-        print( dir( context.region.view2d ) )
-
-
+        # this function also re-initializes to clear out existing gizmos
         self.gizmos.clear()
         self.nodes = []
         for n in context.space_data.node_tree.nodes:
@@ -493,58 +337,35 @@ class NODE_EDITOR_GGT_navigator(GizmoGroup):
             g.alpha = 0.7
             g.scale_basis = 1
 
-        self.minimap_view = self.gizmos.new( gizmoSimpleBox.bl_idname )
+        view = self.gizmos.new( gizmoSimpleBox.bl_idname )
+        self.minimap_view = view
 
         # mpr = self.gizmos.new("GIZMO_GT_cage_2d")
-        mpr = self.gizmos.new( gizmoMousePad.bl_idname )
-        self.minimap = mpr
+        mmap = self.gizmos.new( gizmoMousePad.bl_idname )
+        self.minimap = mmap
 
-        self.minimap_view.matrix_basis[2][3] = 1
-        self.minimap.matrix_basis[2][3] = 0
+        # skew/rotation: 0
+        mmap.matrix_basis[0][0] = 0
+        mmap.matrix_basis[1][1] = 0
+        view.matrix_basis[0][0] = 0
+        view.matrix_basis[1][1] = 0
 
+        # set some colors
+        # BUG? Some of these parameters, like alpha seem to do nothing
+        mmap.color = .3, .3, .3
+        mmap.alpha = 0.5
 
+        view.color = .7, .4, .3
+        view.alpha = 0.8
 
-        # print("\n MPR")
-        # print( dir(mpr) )
-        # print( mpr.matrix_basis )
-
-        # skew
-        mpr.matrix_basis[0][0] = 0
-        mpr.matrix_basis[1][1] = 0
-        mpr.matrix_basis[2][2] = 0
-        mpr.matrix_basis[2][2] = 1
-
-        self.minimap_view.matrix_basis[0][0] = 0
-        self.minimap_view.matrix_basis[1][1] = 0
-        self.minimap_view.matrix_basis[2][2] = 0
-        self.minimap_view.matrix_basis[3][3] = 1
-
-
-
-        # mpr.draw_style = 'BOX'
-        mpr.color = .3, .3, .3
-        mpr.alpha = 0.5
-
-        self.minimap_view.color = .7, .4, .3
-        self.minimap_view.alpha = 0.8
-
-        mpr.hide_select = False
-        mpr.color_highlight = .4, .4, .4
-        mpr.alpha_highlight = 0.5
-        mpr.scale_basis = 1
+        mmap.hide_select = False
+        mmap.color_highlight = .4, .4, .4
+        mmap.alpha_highlight = 0.5
+        mmap.scale_basis = 1
 
         self.refresh(context)
 
-
-
-
-
     def refresh(self, context):
-
-        # nx = context.active_node.location[0]
-        # ny = context.active_node.location[1]
-        # print( "Active Node Pos: {}, {}".format(nx, ny))
-
         self.scan_nodes(context)
         self.adjust_minimap_view(context)
         self.refresh_nodes(context)
