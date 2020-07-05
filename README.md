@@ -3,6 +3,9 @@ A Blender script that adds a gizmo to the top right of node editors that shows a
 
 It's like the minimap on a HUD in a game, or the navigator on an image editor.
 
+![Screenshot of new minimap navigation](https://github.com/echowarp/blender_node_editor_navigation/raw/master/src/doc/img/NavigationPreviewShader.png "Screenshot of new minimap navigation")
+
+
 
 # Installation:
 1. Go to the scripting workspace
@@ -22,3 +25,11 @@ Click and drag on the navigator to move the viewport.
 
 * Zooming and scrolling without the gizmo does not trigger a redraw.
 Only changes in selection or moving using the minimap causes redraw.
+
+# Feature ideas
+* If possible, changing minimap node colors to match the colors at the top of the nodes in the view, and obey custom colors.
+
+* Make minimap resizable by user
+
+# Motivation
+I created this because I found the gizmo on the 3D view extremely helpful when using a graphics tablet, like a Wacom Intuos, but then found it extremely frustrating to navigate the node editor. The primary goal was just to add the scrolling by mouse drag that is possible in the 3D viewer.
