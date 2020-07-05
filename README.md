@@ -3,7 +3,8 @@ A Blender script that adds a gizmo to the top right of node editors that shows a
 
 It's like the minimap on a HUD in a game, or the navigator on an image editor.
 
-![Screenshot of new minimap navigation](https://github.com/echowarp/blender_node_editor_navigation/raw/master/src/doc/img/NavigationPreviewShader.png "Screenshot of new minimap navigation")
+![Screenshot of new minimap navigation](https://github.com/echowarp/blender_node_editor_navigation/raw/master/doc/img/NavigationPreviewShader.png "Screenshot of new minimap navigation")
+
 
 
 
