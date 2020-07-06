@@ -5,6 +5,8 @@ It's like the minimap on a HUD in a game, or the navigator on an image editor.
 
 ![Screenshot of new minimap navigation](https://github.com/echowarp/blender_node_editor_navigation/raw/master/doc/img/NavigationPreviewShader.png "Screenshot of new minimap navigation")
 
+The minimap works in the shader editor and the compositor views.
+
 # Installation: (Temporary)
 1. Go to the scripting workspace
 2. Add a "new text" at the top
