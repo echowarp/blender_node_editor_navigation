@@ -21,6 +21,19 @@ __email__ = "evan.d.boldt@gmail.com"
 import bpy
 import math
 
+bl_info = {
+    "name": "Minimap for Node Editor",
+    "description": "Adds a minimap to node editor that shows all nodes at once.",
+    "location": "Top right of shader editor or compsitor node edit views.",
+    "tracker_url": "https://github.com/echowarp/blender_node_editor_navigation",
+    "blender": (2, 80, 0),
+    "category": "Node",
+    "version": (1,0),
+    "author": "Evan Boldt",
+    "support": "TESTING"
+}
+
+
 from bpy.types import (
     GizmoGroup,
     Gizmo
